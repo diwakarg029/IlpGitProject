@@ -1,0 +1,68 @@
+<aura:component implements="lightning:actionOverride,force:hasRecordId"
+	controller="UpdateCandidateCtrl">
+<!-- Attribute declaration -->
+	<aura:attribute name="studentObj" type="Candidate__c" default="{ 'sobjectType': 'Candidate__c'}"/>
+<!-- hadlerMethod declaration -->
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+<!--/ hadlerMethod declaration -->
+<!-- modal -->
+	<div aura:id="modalIdForEditStudent" role="dialog" tabindex="-1" aria-labelledby="header41" class="slds-modal
+	slds-fade-in-open">
+	<div class="slds-modal__container">
+<!-- header -->
+    <div class="slds-modal__header">
+		<h2 id="header43" class="slds-text-heading--medium">
+			Edit Student
+		</h2>
+	</div>
+<!--/ header -->
+<!-- modal body -->
+	<div class="slds-form slds-grid slds-wrap slds-modal__content">
+	<div class="slds-col--padded slds-size--1-of-1">
+	<div class="slds-form-element">
+	<lightning:input aura:id="stdFirstName" label="First Name" type="String" required="true" value="{!v.studentObj.First_Name__c}"/>
+	</div>
+</div>
+<div class="slds-col--padded slds-size--1-of-1">
+<div class="slds-form-element">
+<lightning:input aura:id="stdLastName"
+label="Last Name"
+type="String"
+value="{!v.studentObj.Last_Name__c}"/>
+</div>
+</div>
+<div class="slds-col--padded slds-size--1-of-1">
+<div class="slds-form-element">
+<lightning:input aura:id="stdEmail"
+label="Email"
+type="String"
+value="{!v.studentObj.Email__c}"/>
+</div>
+</div>
+<div class="slds-col--padded slds-size--1-of-1">
+<div class="slds-form-element">
+<lightning:input aura:id="stdSSN"
+label="SSN"
+type="String"
+value="{!v.studentObj.SSN__c}"/>
+</div>
+</div>
+</div>
+<!--/ modal body -->
+<!-- modal footer -->
+<div class="slds-modal__footer">
+<!-- Button -->
+<lightning:button aura:id="cancelId"
+label="Cancel"
+variant="brand"
+onclick="{!c.doCancel}"/>
+<lightning:button aura:id="saveId"
+label="Save"
+variant="neutral"
+onclick="{!c.doSave}"/>
+</div>
+</div>
+</div>
+<!--/ modal footer -->
+<div aura:id="backdropIdForEditStudent" class="slds-backdrop slds-backdrop--open"/>
+</aura:component>

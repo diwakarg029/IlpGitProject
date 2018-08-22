@@ -1,0 +1,4 @@
+<aura:component >
+    <aura:attribute name="message" type="String"/>
+    <h6>{!v.message}</h6>
+</aura:component>

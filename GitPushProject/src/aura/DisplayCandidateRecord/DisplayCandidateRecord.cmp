@@ -1,0 +1,54 @@
+<aura:component description="CatTracking"
+      implements="flexipage:availableForAllPageTypes"
+      controller="DisplayCandidateController"
+      access="global">    
+    
+    
+    <aura:attribute name="cats" type="Candidate__c[]"/>
+
+<aura:handler name="init" value="{!this}" action="{!c.loadCats}"/>
+
+<div class="slds-align--absolute-center">
+    <p class="slds-text-heading--label">Click any Cat to view or edit details</p>
+</div>
+<div class="slds-align--absolute-center">
+    <ui:button aura:id="new" label="Create new Cat" press="{!c.loadNew}"/>
+    <br/>
+</div>
+<table class="myClass slds-table slds-table--bordered slds-table--cell-buffer">
+    <thead>
+    <tr class="slds-text-heading--label">
+        <th scope="col">
+            <div class="slds-truncate" title="Id">Id</div>
+        </th>
+        <th scope="col">
+            <div class="slds-truncate" title="First Name">First Name</div>
+        </th>
+        <th scope="col">
+            <div class="slds-truncate" title="Last Name">Last Name</div>
+        </th>
+        <th scope="col">
+            <div class="slds-truncate" title="Email">Email</div>
+        </th>
+        <th scope="col">
+            <div class="slds-truncate" title="SSN">SSN</div>
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+        
+        
+     <aura:iteration items="{!v.cats}" var="cat">
+        <tr>
+            <td>{!cat.Id}</td>
+            <td>{!cat.First_Name__c}</td>
+            <td>{!cat.Last_Name__c}</td>
+            <td>{!cat.Email__c}</td>
+            <td>{!cat.SSN__c}</td>
+        </tr>
+    </aura:iteration>   
+        
+        
+    </tbody>
+</table>
+</aura:component>

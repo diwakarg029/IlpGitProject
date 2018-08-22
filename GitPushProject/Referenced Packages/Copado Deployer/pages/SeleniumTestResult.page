@@ -1,0 +1,16 @@
+<apex:page id="thePage" standardController="copado__Selenium_Test_Result__c" extensions="copado.SeleniumTestResult">
+    <apex:includeScript value="{!URLFOR($Resource.copado__Statics,'js/libs/jquery.min.1.10.2.js')}" />
+    
+    <c:GAnalytics />
+    
+    <apex:detail subject="{!copado__Selenium_Test_Result__c.Id}" title="true" showChatter="true" rendered="{!and($Setup.Settings__c.Enabled_Multi_Licenses__c, $Setup.Copado_License__c.Enable_CST__c)}" />
+    <apex:pageMessage severity="WARNING" strength="2" summary="{!$Label.copado__selenium_not_enabled}" rendered="{!!and($Setup.Settings__c.Enabled_Multi_Licenses__c, $Setup.Copado_License__c.Enable_CST__c)}"></apex:pageMessage>    
+    <apex:outputText value="{!fileBody}" escape="false" rendered="{!and($Setup.Settings__c.Enabled_Multi_Licenses__c, $Setup.Copado_License__c.Enable_CST__c)}"/>
+
+    <script>
+        ga('send', 'pageview', {
+            'page': '/SeleniumTestResult',
+            'title': 'Selenium Test Result'
+        });
+    </script>
+</apex:page>

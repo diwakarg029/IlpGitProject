@@ -1,0 +1,18 @@
+<aura:component >
+    <aura:attribute name="attr_selectTypeBoat" type='String[]' default='All Types'/>
+    <lightning:layout horizontalAlign="center" >
+            <lightning:layoutItem flexibility="auto" padding="around-small" >
+                <lightning:select aura:id="selectTypeBoat" name="selectType" label='Please select'>
+                    <aura:iteration items='{!v.attr_selectTypeBoat}' var='option'>
+                        <option value='{!option}' text='{!option}' />
+                    </aura:iteration>
+                </lightning:select>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="auto" padding="around-small" >
+                <lightning:button label="Search" variant="brand"/>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="auto" padding="around-small">
+                <lightning:button label="New" variant="neutral"/>
+            </lightning:layoutItem>
+        </lightning:layout>
+</aura:component>

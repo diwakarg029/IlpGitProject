@@ -1,0 +1,9 @@
+<aura:component >
+	<aura:attribute name="item" type="Camping_Item__c"/> 
+        <div>
+        <lightning:button label="Packed!"
+            onclick="{!c.packItem}"/>
+    </div>
+    
+    
+</aura:component>

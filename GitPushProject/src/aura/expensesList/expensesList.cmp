@@ -1,0 +1,5 @@
+<aura:component >
+  <aura:iteration items="1,2,3,4,5" var="item">
+    <meter value="{!item / 5}"/><br/>
+  </aura:iteration>
+</aura:component>

@@ -1,0 +1,400 @@
+<apex:page id="thePage" standardController="copado__Deployment_Flow__c" extensions="copado.Settings,copado.FeatureHelper,copado.JsRemotingController" sidebar="false" showHeader="false">
+    <c:GAnalytics />
+    <c:WizardUtils />
+    <script type="text/javascript" src="{!URLFOR($Resource.Statics,'js/libs/jquery.min.1.10.2.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Statics,'js/libs/jquery-ui.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jqx, 'jqwidgets/jqx-all.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jqx, 'jqwidgets/jqxwindow.js')}"></script>
+    <apex:stylesheet value="{!URLFOR($Resource.copado__jqx, 'jqwidgets/styles/jqx.base.css')}" />
+    
+    <link rel="stylesheet" href="{!URLFOR($Resource.Statics,'css/jquery-ui.css')}" />
+    <link rel="stylesheet" href="{!URLFOR($Resource.CopadoChangeManagement,'Assets/css/deploymentFlowConnections.css')}" />    
+    <apex:stylesheet value="{!URLFOR($Resource.copado__Statics,'css/DiffView.css')}" />
+    
+    <apex:includeScript value="{!URLFOR($Resource.copado__Statics, 'js/utilsV2.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.copado__Statics, 'js/Cometd.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.copado__Statics, 'js/JsRemoting.js')}"/>
+    <script type="text/javascript" src="{!URLFOR($Resource.CopadoChangeManagement, 'Assets/js/jquery.svg.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.CopadoChangeManagement, 'Assets/js/jquery.connectingLine.js')}"></script>
+    <apex:includeScript value="{!URLFOR($Resource.copado__Statics, 'js/json2.js')}"/>
+    <script type="text/javascript" src="{!URLFOR($Resource.Statics, 'js/difflib.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Statics, 'js/diffview.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Statics, 'js/jquery.cometd.js')}"></script>
+    <apex:includeScript value="{!URLFOR($Resource.copado__Statics, 'js/jszip.js')}" />
+    <script type="text/javascript" src="{!URLFOR($Resource.Statics, 'js/copadoStreamingService.js')}"></script>
+    <apex:includeScript value="{!URLFOR($Resource.copado__Statics, 'js/statusManager.js')}" />
+
+    <head>
+        <style type="text/css">
+            .js-show-diff{
+                float: right;
+                margin-right: 10px;
+                color: blue !important;
+                text-decoration: underline;
+            }
+            .jqx-tooltip-main{
+                text-align:left;
+            }
+            .jqx-tabs-titleContentWrapper.jqx-disableselect{
+                margin-top: 0px !important;
+            }
+        </style>
+        <script type="text/javascript">
+            var $copado = jQuery.noConflict(), 
+            __sfdcSessionId = '{!GETSESSIONID()}';
+        </script>
+        <script src="/soap/ajax/35.0/connection.js"></script>
+        <c:ShowWebhook url="webhook/branchStatuses" recordId="{!copado__Deployment_Flow__c.Id}" />
+    </head>
+    <c:IframeLocker url="" />
+    <apex:outputField value="{!copado__Deployment_Flow__c.copado__Flow_Step_Coordinates__c}" rendered="false" />
+    <apex:outputField value="{!copado__Deployment_Flow__c.copado__Main_Branch__c}" rendered="false" />
+    <apex:outputField value="{!copado__Deployment_Flow__c.copado__Git_Repository__c}" rendered="false"/>
+    <body>
+        <c:ScreenLocker msg=""/>
+        <!--US-0000516: Allow CCM Users to Manage Branches
+        <apex:pageMessage Severity="WARNING" Strength="3" summary="{!$Label.BRANCH_MGMT_NOT_ENABLED}" rendered="{!!branchMgmtEnabled}" /> 
+        <apex:outputPanel id="globalWrapper" rendered="{!branchMgmtEnabled}">
+        -->
+        <apex:outputPanel id="globalWrapper">
+            <script type="text/javascript">
+                var copadoApp = {
+                    ns: '{!namespace}',
+                    data: {
+                        flowId: '{!copado__Deployment_Flow__c.Id}',
+                        __coordinates__: '{!copado__Deployment_Flow__c.copado__Flow_Step_Coordinates__c}',
+                        mainBranch: '{!copado__Deployment_Flow__c.copado__Main_Branch__c}',
+                        repositoryId: '{!copado__Deployment_Flow__c.copado__Git_Repository__c}'
+                    },
+                    envConnections: [],
+                    environments: [],
+                    urlParameters: '{!urlParameters}'
+                };
+            </script>
+            <!-- -->
+            <div style="width:300px; float:left; position:absolute;">
+                <apex:pageBlock >
+                <apex:pageBlockSection columns="1">
+                    <input type="button" class="btn" onclick="backDeploy.recalculate(this);" value="Recalculate" />
+                    <button id="btnShowHookUrl" value="Show Hook URL" onclick="showWebhook(); return false;">Show Hook URL</button>
+                    <apex:pageBlockSectionItem >
+                        <label><input type="checkbox" id="envAutoComplete" onclick="backDeploy.showHideCIEnvironments(this.checked);" /> Show related Continuous Integrations</label>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                <apex:pageBlockSection columns="1" collapsible="true" showHeader="true" title="Continuous Integrations Notes" id="warningMessagesPageBlockSection">
+                    <script type="text/javascript">window.warningMessagesPageBlockSectionId = '{!$Component.warningMessagesPageBlockSection}';
+                    document.getElementById(window.warningMessagesPageBlockSectionId).style.display='none';</script>
+                    <div id="warningMessages"></div>
+                </apex:pageBlockSection>
+                <apex:pageBlockSection columns="1" collapsible="true" showHeader="true" title="Latest sync results" id="lastSyncResult">
+                    <div id="syncLogs"></div>
+                    <script>try{ twistSection(document.getElementById('{!$Component.lastSyncResult}').getElementsByTagName('img')[0]); }catch(e){ console.warn(e); }</script>
+                </apex:pageBlockSection>
+                </apex:pageBlock>
+            </div>
+            
+        
+            <a name="canvasLocation" style="display:none;">toplink</a>
+            <!-- Canvas Div -->
+            <div id="boxCanvas"> </div>
+            
+            <script type="text/javascript" src="{!URLFOR($Resource.statics, 'js/backDeploy.js')}"></script>
+            <script type="text/javascript" src="{!URLFOR($Resource.Statics, 'js/localStreamingService.js')}"></script>
+            <script type="text/javascript">
+                backDeploy.config.ns = copadoApp.ns;
+                backDeploy.config.fileName = 'PROGRESS_STATUS_COPADO';
+                backDeploy.config.imageUrl.loading = '{!URLFOR($Resource.Statics,"img/icons/loading.gif")}';
+                backDeploy.config.imageUrl.confirm = '{!URLFOR($Resource.Statics,"img/icons/confirm16.png")}';
+                backDeploy.config.imageUrl.error = '{!URLFOR($Resource.Statics,"img/icons/error16.png")}';
+                backDeploy.config.imageUrl.lookup = '{!URLFOR($Resource.Statics,"img/icons/view.png")}';
+                backDeploy.config.imageUrl.spacer = '{!URLFOR($Resource.Statics,"img/icons/s.gif")}';
+                backDeploy.config.herokuServer = '{!herokuServer}';
+                backDeploy.config.currentUserId = '{!$User.Id}';
+                backDeploy.labels.AHEAD = 'ahead';
+                backDeploy.labels.BEHIND = 'behind';
+                backDeploy.labels.ACTION_BUTTON_LABEL = 'Submit';
+                backDeploy.labels.LOADING = 'Loading';
+                backDeploy.labels.NAME = 'Name';
+                backDeploy.labels.BRANCH = 'Branch';
+                backDeploy.labels.TEST_LEVEL = 'Test Level';
+                backDeploy.labels.AUTO_MERGE_DEPLOY = 'Auto Merge & Deploy';
+                backDeploy.labels.YES = 'Yes';
+                backDeploy.labels.NO = 'No';
+                backDeploy.labels.NEXT_ENVIRONMENT = 'Next Environment';
+                backDeploy.labels.MORE_DETAILS = 'More Details';
+                backDeploy.labels.IN_SYNC = 'In Sync';
+    
+                $copado( document ).ready(function() {
+                    copadoStreamingService.ns = copadoApp.ns;
+                    copadoStreamingService.init();
+                    
+                    backDeploy.loadPage();
+                    localStreamingService.data.parentId = copadoApp.data.flowId;
+                    localStreamingService.data.childrenArray = backDeploy.data.stepIds;
+                    localStreamingService.data.readStatusFromAttachmentCB = backDeploy.statusHandler;
+                    localStreamingService.config.ns = copadoApp.ns;
+                    localStreamingService.config.attachmentFileName = 'PROGRESS_STATUS_COPADO';
+                    
+                    $copado.cometd.subscribe('/topic/CopadoNotifications', function(message) {
+                        //console.info('Push message: ', message);
+                        localStreamingService.readStream(message);
+                    });
+                    window.onbeforeunload = copadoStreamingService.disconnect;
+                });
+                function reRenderFromContextSelector(obj, type){
+                    backDeploy.config.contextSize = parseInt(obj.value);
+                    backDeploy.diff.renderDiff(type);
+                    $copado('.js-context').val(obj.value);
+                }
+                function reRenderFromRenderOption(obj, type){
+                    backDeploy.config.viewType = parseInt(obj.value);
+                    backDeploy.diff.renderDiff(type);
+                    $copado('.js-viewType').val(obj.value);
+                }
+            </script>
+        
+            
+            <div id="window" style="width:100%">
+                <div id="windowHeader">
+                    <span> </span>
+                </div>
+                <div id="windowContent" >
+                    <div id="jqxTabs">
+                        <ul id="tabsUL">
+                            <li style="display:none;" id="behindDiffs">Pull Differences</li>
+                            <li style="display:none;" id="aheadDiffs">Merge Differences</li>
+                            <li style="display:none;" id="pullErrors">Pull Errors</li>
+                            <li style="display:none;" id="mergeErrors">Merge Errors</li>
+                            <li style="display:none;" id="pullValidationErrors">Pull Validation Errors</li>
+                            <li style="display:none;" id="pullDeploymentErrors">Pull Deployment Errors</li>
+                            <li style="display:none;" id="mergeValidationErrors">Merge Validation Errors</li>
+                            <li style="display:none;" id="mergeDeploymentErrors">Merge Deployment Errors</li>
+                            <li style="display:none;" id="pullMerged">Merged Pull Files</li>
+                            <li style="display:none;" id="mergeMerged">Merged Merge Files</li>
+                        </ul>
+                        <div style="display:none; width:100%; height:100%;" id="div-bh-diff">
+                            <div id="behindFileList" style="width:100%;"> </div>
+                            <apex:pageBlock >
+                                <apex:pageBlockSection >
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >Display Differences</apex:outputLabel>
+                                        <apex:outputPanel >
+                                            <select id="viewTypeSelector-bh" class="js-viewType" size="1" onchange="reRenderFromRenderOption(this, 'pull');">
+                                                <option value="0" label="Side by Side">Side by Side</option>
+                                                <option value="1" label="Inline">Inline</option>
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >Context size (optional)</apex:outputLabel>
+                                        <apex:outputPanel >
+                                            <select id="contextSelector-bh" class="js-context" size="1" onChange="reRenderFromContextSelector(this, 'pull');">
+                                                <option value="1" label="1">1</option>
+                                                <option value="5" label="5" selected="selected">5</option>
+                                                <option value="10" label="10">10</option>
+                                                <option value="15" label="15">15</option>
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <div id="behindDiffWrapper" style="width:100%; height:100%"> </div>
+                            </apex:pageBlock>
+                        </div>
+                        <div style="display:none;" id="div-ah-diff">
+                            <div id="aheadFileList"> </div>
+                            <apex:pageBlock >
+                                <apex:pageBlockSection >
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >Display Differences</apex:outputLabel>
+                                        <apex:outputPanel >
+                                            <select id="viewTypeSelector-ah" class="js-viewType" size="1" onchange="reRenderFromRenderOption(this, 'merge');">
+                                                <option value="0" label="Side by Side">Side by Side</option>
+                                                <option value="1" label="Inline">Inline</option>
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >Context size (optional)</apex:outputLabel>
+                                        <apex:outputPanel >
+                                            <select id="contextSelector-ah" class="js-context" size="1" onChange="reRenderFromContextSelector(this, 'merge');">
+                                                <option value="1" label="1">1</option>
+                                                <option value="5" label="5" selected="selected">5</option>
+                                                <option value="10" label="10">10</option>
+                                                <option value="15" label="15">15</option>
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <div id="aheadDiffWrapper"> </div>
+                            </apex:pageBlock>
+                        </div>
+                        <div style="display:none;" id="div-p-e">
+                            <div id="div-p-eFileList"> </div>
+                            <apex:pageBlock >
+                                <apex:pageBlockSection >
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >Display Differences</apex:outputLabel>
+                                        <apex:outputPanel >
+                                            <select id="viewTypeSelector-pe" class="js-viewType" size="1" onchange="reRenderFromRenderOption(this, 'div-p-e');">
+                                                <option value="0" label="Side by Side">Side by Side</option>
+                                                <option value="1" label="Inline">Inline</option>
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >Context size (optional)</apex:outputLabel>
+                                        <apex:outputPanel >
+                                            <select id="contextSelector-pe" class="js-context" size="1" onChange="reRenderFromContextSelector(this, 'div-p-e');">
+                                                <option value="1" label="1">1</option>
+                                                <option value="5" label="5" selected="selected">5</option>
+                                                <option value="10" label="10">10</option>
+                                                <option value="15" label="15">15</option>
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <div id="div-p-eDiffWrapper"> </div>
+                            </apex:pageBlock>
+                        </div>
+                        <div style="display:none;" id="div-m-e">
+                            <div id="div-m-eFileList"> </div>
+                            <apex:pageBlock >
+                                <apex:pageBlockSection >
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >Display Differences</apex:outputLabel>
+                                        <apex:outputPanel >
+                                            <select id="viewTypeSelector-me" class="js-viewType" size="1" onchange="reRenderFromRenderOption(this, 'div-m-e');">
+                                                <option value="0" label="Side by Side">Side by Side</option>
+                                                <option value="1" label="Inline">Inline</option>
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >Context size (optional)</apex:outputLabel>
+                                        <apex:outputPanel >
+                                            <select id="contextSelector-me" class="js-context" size="1" onChange="reRenderFromContextSelector(this, 'div-m-e');">
+                                                <option value="1" label="1">1</option>
+                                                <option value="5" label="5" selected="selected">5</option>
+                                                <option value="10" label="10">10</option>
+                                                <option value="15" label="15">15</option>
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <div id="div-m-eDiffWrapper"> </div>
+                            </apex:pageBlock>
+                        </div>
+    
+                        <div style="display:none;" id="div-p-v-e"> </div>
+                        <div style="display:none;" id="div-p-d-e"> </div>
+                        <div style="display:none;" id="div-m-v-e"> </div>
+                        <div style="display:none;" id="div-m-d-e"> </div>
+    
+                        <div style="display:none;" id="div-p-m">
+                            <div id="div-p-mFileList"> </div>
+                            <apex:pageBlock >
+                                <apex:pageBlockSection >
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >Display Differences</apex:outputLabel>
+                                        <apex:outputPanel >
+                                            <select id="viewTypeSelector-pm" class="js-viewType" size="1" onchange="reRenderFromRenderOption(this, 'div-p-m');">
+                                                <option value="0" label="Side by Side">Side by Side</option>
+                                                <option value="1" label="Inline">Inline</option>
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >Context size (optional)</apex:outputLabel>
+                                        <apex:outputPanel >
+                                            <select id="contextSelector-pm" class="js-context" size="1" onChange="reRenderFromContextSelector(this, 'div-p-m');">
+                                                <option value="1" label="1">1</option>
+                                                <option value="5" label="5" selected="selected">5</option>
+                                                <option value="10" label="10">10</option>
+                                                <option value="15" label="15">15</option>
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <div id="div-p-mDiffWrapper"> </div>
+                            </apex:pageBlock>
+                        </div>
+                        <div style="display:none;" id="div-m-m">
+                            <div id="div-m-mFileList"> </div>
+                            <apex:pageBlock >
+                                <apex:pageBlockSection >
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >Display Differences</apex:outputLabel>
+                                        <apex:outputPanel >
+                                            <select id="viewTypeSelector-mm" class="js-viewType" size="1" onchange="reRenderFromRenderOption(this, 'div-m-m');">
+                                                <option value="0" label="Side by Side">Side by Side</option>
+                                                <option value="1" label="Inline">Inline</option>
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel >Context size (optional)</apex:outputLabel>
+                                        <apex:outputPanel >
+                                            <select id="contextSelector-mm" class="js-context" size="1" onChange="reRenderFromContextSelector(this, 'div-m-m');">
+                                                <option value="1" label="1">1</option>
+                                                <option value="5" label="5" selected="selected">5</option>
+                                                <option value="10" label="10">10</option>
+                                                <option value="15" label="15">15</option>
+                                            </select>
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <div id="div-m-mDiffWrapper"> </div>
+                            </apex:pageBlock>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <script type="text/javascript">
+                function createPopUpWindow(windowTitle, tabIndex) {
+                    var width = $copado(window).width();
+                    var height = $copado(window).height();
+                    $copado('#window').jqxWindow({
+                        width:width, height:height, showCloseButton:true, resizable:true, minHeight: 200, minWidth: 200, maxWidth:width+500, maxHeight:height+500, autoOpen:false, resizable:true, 
+                        initContent: function() {
+                            $copado('#jqxTabs').jqxTabs({ width:'100%', height:'100%', position:'top'});
+                        }
+                    });
+                    $copado('#window').jqxWindow('resize', height, width);
+                    $copado('#window').jqxWindow('setTitle', windowTitle);
+                    $copado('#window').jqxWindow('open');
+                    $copado('#jqxTabs').jqxTabs({ width:'100%', height:'100%', position:'top'});
+                    $copado('#jqxTabs').jqxTabs('select', ((tabIndex==null)?0:tabIndex)); 
+                }
+                function onResize(){
+                    var $win = $copado(window);
+                    console.info('Resizing to: ', $win.width(), $win.height());
+                    $canvas = $copado("#boxCanvas canvas");
+                    $canvas.prop('width',  $win.width());
+                    $canvas.prop('height', $win.height());
+                    
+                    $copado('#window').jqxWindow({
+                        width:$win.width()-20, height:$win.height()-20,autoOpen:false, maxHeight:$win.height()+5000, maxWidth:$win.width()+5000
+                    });
+                    if($copado('div[role="grid"]').length>0){
+                        $copado('div[role="grid"]').jqxGrid('refresh');  
+                    }
+                    backDeploy.drawEnvironmentBoxes();
+                }
+                var timer;
+                $copado(window).on('resize', function(){
+                    timer && clearTimeout(timer);
+                    timer = setTimeout(onResize, 100);
+                });
+            </script>
+        
+        </apex:outputPanel>
+        <script>
+            ga('send', 'pageview', {
+              'page': '/BranchManagement',
+              'title': 'Branch Management'
+            });
+        </script>        
+    </body>
+    <c:CheckFeaturesComponent />
+</apex:page>

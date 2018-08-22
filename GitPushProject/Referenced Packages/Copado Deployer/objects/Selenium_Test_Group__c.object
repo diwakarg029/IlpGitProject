@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <content>SeleniumTestGroupDetailOverride</content>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Description__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Description</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Environment__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Environment</label>
+        <referenceTo>Environment__c</referenceTo>
+        <relationshipLabel>Selenium Test Groups</relationshipLabel>
+        <relationshipName>Selenium_Test_Groups</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>External_Id__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>External Id</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>Manage_Test_Runs_manually__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>When this option is unchecked, Copado will automatically create/update/remove Test Runs for each Suite/Org Credential.
+
+Check it to manage the Test Runs in this group manually, then go to a Test Run list view, and use the &quot;Add to Test Group&quot; option.</inlineHelpText>
+        <label>Manage Test Runs manually</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Selenium_Settings__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>All tests runs belonging to this Test Group will use these Selenium Settings.</inlineHelpText>
+        <label>Selenium Settings</label>
+        <referenceTo>Selenium_Settings__c</referenceTo>
+        <relationshipLabel>Selenium Test Groups</relationshipLabel>
+        <relationshipName>Selenium_Test_Groups</relationshipName>
+        <required>true</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Status_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Status Date</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Status_Icon__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IMAGE( 
+CASE(TEXT(Status__c), 
+
+&apos;Completed with errors&apos;, &apos;/resource/&apos; &amp; IF($Setup.Settings__c.Namespace__c=&apos;none&apos;,&apos;&apos;,if(isblank($Setup.Settings__c.Namespace__c),&apos;copado__&apos;,$Setup.Settings__c.Namespace__c)) &amp; &apos;Statics/img/icons/warning16.png&apos;, 
+
+&apos;Completed successfully&apos;, &apos;/resource/&apos; &amp; IF($Setup.Settings__c.Namespace__c=&apos;none&apos;,&apos;&apos;,if(isblank($Setup.Settings__c.Namespace__c),&apos;copado__&apos;,$Setup.Settings__c.Namespace__c)) &amp; &apos;Statics/img/icons/confirm16.png&apos;, 
+
+&apos;Completed with warnings&apos;, &apos;/resource/&apos; &amp; IF($Setup.Settings__c.Namespace__c=&apos;none&apos;,&apos;&apos;,if(isblank($Setup.Settings__c.Namespace__c),&apos;copado__&apos;,$Setup.Settings__c.Namespace__c)) &amp; &apos;Statics/img/icons/confirm16.png&apos;, 
+
+
+&apos;In Progress&apos;, &apos;/resource/&apos; &amp; IF($Setup.Settings__c.Namespace__c=&apos;none&apos;,&apos;&apos;,if(isblank($Setup.Settings__c.Namespace__c),&apos;copado__&apos;,$Setup.Settings__c.Namespace__c)) &amp; &apos;Statics/img/icons/loading.gif&apos;,
+
+&apos;Queued&apos;, &apos;/resource/&apos; &amp; IF($Setup.Settings__c.Namespace__c=&apos;none&apos;,&apos;&apos;,if(isblank($Setup.Settings__c.Namespace__c),&apos;copado__&apos;,$Setup.Settings__c.Namespace__c)) &amp; &apos;Statics/img/icons/loading.gif&apos;, 
+
+&apos;/s.gif&apos;),
+
+TEXT(Status__c) 
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Status Icon</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Status__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Status</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>Queued</fullName>
+                    <default>false</default>
+                </value>
+                <value>
+                    <fullName>In Progress</fullName>
+                    <default>false</default>
+                </value>
+                <value>
+                    <fullName>Completed with Errors</fullName>
+                    <default>false</default>
+                </value>
+                <value>
+                    <fullName>Completed Successfully</fullName>
+                    <default>false</default>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>Type__c</fullName>
+        <deprecated>false</deprecated>
+        <description>If ?Regression Test? or ?User Story Test? is selected, then all Org Credentials associated to that Test Group must be linked to the same environment.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>If ?Regression Test? or ?User Story Test? is selected, then all Org Credentials associated to that Test Group must be linked to the same environment.</inlineHelpText>
+        <label>Type</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>Default</fullName>
+                    <default>false</default>
+                </value>
+                <value>
+                    <fullName>Regression Test</fullName>
+                    <default>false</default>
+                </value>
+                <value>
+                    <fullName>User Story Test</fullName>
+                    <default>false</default>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <label>Selenium Test Group</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>Selenium_Settings__c</columns>
+        <columns>Description__c</columns>
+        <columns>Status__c</columns>
+        <columns>Status_Icon__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+        <language>en_US</language>
+    </listViews>
+    <nameField>
+        <label>Selenium Test Group Name</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Selenium Test Groups</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>Selenium_Settings__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Description__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status_Icon__c</customTabListAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>Environment_Required</fullName>
+        <active>true</active>
+        <description>If the Type value is equal to &quot;Regression Test&quot; or &quot;User Story Test&quot;, the Environment field must have a value.</description>
+        <errorConditionFormula>AND( ISBLANK( Environment__c ), OR(ISPICKVAL( Type__c , &quot;Regression Test&quot;), ISPICKVAL( Type__c , &quot;User Story Test&quot;)))</errorConditionFormula>
+        <errorDisplayField>Environment__c</errorDisplayField>
+        <errorMessage>The Environment field is required if the Type is &quot;User Story Test&quot; or &quot;Regression Test&quot;.</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>Refresh_Results</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Refresh Results</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>document.location.reload(true);</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Run_Group</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <linkType>page</linkType>
+        <masterLabel>Run Group</masterLabel>
+        <openType>replace</openType>
+        <page>SeleniumRunGroup</page>
+        <protected>false</protected>
+    </webLinks>
+    <webLinks>
+        <fullName>Show_Hook_URL</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Show Hook URL</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>showWebhook();</url>
+    </webLinks>
+</CustomObject>

@@ -1,0 +1,34 @@
+<apex:page standardController="copado__User_Story__c" extensions="copado.UserStoryExt">
+  <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" lang="en">
+    <head>
+      <c:GAnalytics />
+      <script>
+          ga('send', 'pageview', {
+            'page': '/UserStory',
+            'title': 'User Story'
+          });
+      </script>   
+      <apex:slds />
+    </head>
+    
+    <body>
+      <apex:pageBlock rendered="{!hasActiveDeploymentFlow}">
+          <div class="slds-grid">
+            <div class="slds-tabs--path" role="application">
+              <ul class="slds-tabs--path__nav" role="tablist">
+                 <apex:repeat value="{!visualFlowSteps}" var="step">
+                    <li class="slds-tabs--path__item {!step.style}" role="presentation">
+                      <a class="slds-tabs--path__link" id="tabs-path-93" aria-controls="content-path-1" aria-selected="false" tabindex="-1" role="tab" href="javascript:void(0);" aria-live="assertive">
+                        <span class="slds-tabs--path__title">{!step.environment}</span>
+                      </a>
+                    </li>
+                  </apex:repeat>                  
+              </ul>
+            </div>
+          </div>
+      </apex:pageBlock>
+
+      <apex:detail subject="{!copado__User_Story__c.Id}" relatedList="true" title="true" showChatter="true" inlineEdit="true"/> 
+    </body> 
+  </html>
+</apex:page>

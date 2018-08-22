@@ -1,0 +1,64 @@
+<aura:component controller="CreateCandidateRecord" 
+				implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" 
+				access="global" >
+
+    
+    <!-- Define Attribute-->
+    <aura:attribute name="candidate" type="Candidate__c" default="{'sobjectType': 'Candidate__c',
+                         'First_Name__c': '',
+                         'Last_Name__c': '',
+                         'Email__c': '', 
+                         'SSN__c': ''
+                       }"/>
+    
+    
+    
+    
+     <!-- PAGE HEADER -->
+    <lightning:layout class="slds-page-header slds-page-header--object-home ">
+        <lightning:layoutItem >
+            <lightning:icon iconName="custom:custom36" alternativeText="My Expenses"/>
+        </lightning:layoutItem>
+        <lightning:layoutItem padding="horizontal-small">
+            <div class="page-section page-header" >
+                <h1 class="slds-text-heading--label">Please Enter The Candidate Information</h1>
+            </div>
+        </lightning:layoutItem>
+    </lightning:layout>
+    
+    
+        <!-- NEW EXPENSE FORM -->
+    <lightning:layout >
+        <lightning:layoutItem padding="around-small" size="6">
+            <!-- CREATE NEW EXPENSE -->
+    <div aria-labelledby="newexpenseform">
+        <!-- BOXED AREA -->
+        <fieldset class="slds-box slds-theme--default slds-container--small slds-align_absolute-center">
+  
+        <!-- CREATE NEW EXPENSE FORM -->
+        <form class="slds-form--stacked">          
+            <lightning:input aura:id="expenseform" label="First Name"
+                             value="{!v.candidate.First_Name__c}"
+                             required="true"/> 
+            <lightning:input aura:id="expenseform" label="Last Name"
+                             value="{!v.candidate.Last_Name__c}" required="true"/>
+            <lightning:input aura:id="expenseform" label="Email Address"
+                             value="{!v.candidate.Email__c}"
+                             required="true"/>
+            <lightning:input aura:id="expenseform" label="SSN"
+                             value="{!v.candidate.SSN__c}" required="true"/>
+            <lightning:button label="Create" 
+                              class="slds-m-top--medium"
+                              variant="brand"
+                              onclick="{!c.create}"/>
+        </form>
+        <!-- / CREATE NEW EXPENSE FORM -->
+  
+      </fieldset>
+      <!-- / BOXED AREA -->
+    </div>
+    <!-- / CREATE NEW EXPENSE -->
+        </lightning:layoutItem>
+    </lightning:layout>
+    <!-- / NEW EXPENSE FORM -->
+</aura:component>

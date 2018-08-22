@@ -1,0 +1,68 @@
+<apex:page standardController="copado__Deployment_Flow__c" extensions="copado.Settings" id="thePage" showHeader="false" sidebar="false" docType="html-5.0">
+    <c:GAnalytics />
+    <script type="text/javascript" src="{!URLFOR($Resource.Statics,'js/libs/jquery.min.1.10.2.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Statics,'js/libs/jquery-ui.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jqx, 'jqwidgets/jqx-all.js')}"></script>
+    <link rel="stylesheet" href="{!URLFOR($Resource.Statics,'css/jquery-ui.css')}" />
+    <link rel="stylesheet" href="{!URLFOR($Resource.CopadoChangeManagement,'Assets/css/deploymentFlowConnections.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.copado__jqx, 'jqwidgets/styles/jqx.base.css')}" />
+    <script type="text/javascript" src="{!URLFOR($Resource.Statics,'js/JsRemoting.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.CopadoChangeManagement, 'Assets/js/jquery.svg.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.CopadoChangeManagement, 'Assets/js/jquery.connectingLine.js')}"></script>
+    
+    <apex:outputField value="{!copado__Deployment_Flow__c.copado__Flow_Step_Coordinates__c}" rendered="false"/>
+    <apex:outputField value="{!copado__Deployment_Flow__c.copado__Main_Branch__c}" rendered="false"/>
+    <apex:outputField value="{!copado__Deployment_Flow__c.copado__Git_Repository__c}" rendered="false"/>
+    
+    <script type="text/javascript" id="scriptInit">
+        var __sfdcSessionId = '{!GETSESSIONID()}';
+        var $copado = jQuery.noConflict();
+        var __coordinates__ = '{!copado__Deployment_Flow__c.copado__Flow_Step_Coordinates__c}';
+        var envConnections = [];
+        var environments = [];
+        var copadoApp = {
+            ns: '{!namespace}',
+            data: {
+                flowId: '{!Deployment_Flow__c.Id}',
+                mainBranch: '{!copado__Deployment_Flow__c.copado__Main_Branch__c}',
+                repositoryId: '{!copado__Deployment_Flow__c.copado__Git_Repository__c}'
+            }
+        };
+    </script>
+    
+    <script src="/soap/ajax/32.0/connection.js" type="text/javascript"></script>    
+    
+    <body>
+        <div style="position:absolute; width:500px;">
+            <apex:pageBlock >
+                <apex:pageBlockSection columns="1" collapsible="true">
+                    <apex:outputLabel value="{!$Label.copado__add_environment_steps}" style="font-weight: bold;"/>
+                    <apex:outputLabel value="{!$Label.copado__rearrange_environments}" />
+                    <apex:pageBlockSectionItem >
+                        <label><input type="checkbox" id="envAutoComplete" onclick="deploymentFlow.showHideCIEnvironments(this.checked);" /> Show related Continuous Integrations</label>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                <apex:pageBlockSection columns="1" collapsible="true" showHeader="true" title="Continuous Integrations Notes" id="warningMessagesPageBlockSection">
+                    <script type="text/javascript">window.warningMessagesPageBlockSectionId = '{!$Component.warningMessagesPageBlockSection}';
+    	            document.getElementById(window.warningMessagesPageBlockSectionId).style.display='none';</script>
+    				<div id="warningMessages"></div>
+                </apex:pageBlockSection>
+            </apex:pageBlock>
+        </div>
+        <div id="boxCanvas"> </div>
+        
+        <script type="text/javascript" src="{!URLFOR($Resource.Statics,'js/deploymentFlow.js')}"></script>
+        <script id="myMethods" type="text/javascript">
+            deploymentFlow.loadPage();                   
+            $copado(document).ready(function() {
+                deploymentFlow.initialiseAutoComplete(null);
+            });         
+        </script>
+    </body>
+    <script>
+        ga('send', 'pageview', {
+          'page': '/DeploymentFlowConnections',
+          'title': 'Deployment Flow Connections'
+        });
+    </script>
+</apex:page>

@@ -1,0 +1,11 @@
+<apex:page standardController="copado__Selenium_Test_Suite__c">
+    <apex:detail subject="{!copado__Selenium_Test_Suite__c.Id}" relatedList="true" title="true" showChatter="true" rendered="{!and($Setup.Settings__c.Enabled_Multi_Licenses__c, $Setup.Copado_License__c.Enable_CST__c)}" />
+    <c:GAnalytics />
+    <script>
+        ga('send', 'pageview', {
+          'page': '/SeleniumTestSuite',
+          'title': 'Selenium Test Suite'
+        });
+    </script> 
+    <apex:pageMessage severity="WARNING" strength="2" summary="{!$Label.copado__selenium_not_enabled}" rendered="{!!and($Setup.Settings__c.Enabled_Multi_Licenses__c, $Setup.Copado_License__c.Enable_CST__c)}"></apex:pageMessage>
+</apex:page>
